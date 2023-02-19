@@ -1,0 +1,25 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "CollectionViewPagingLayout",
+        "repositoryURL": "https://github.com/amirdew/CollectionViewPagingLayout",
+        "state": {
+          "branch": null,
+          "revision": "4bdec327535470c8d9765d190625b13e99b87db5",
+          "version": "1.1.0"
+        }
+      },
+      {
+        "package": "SnapKit",
+        "repositoryURL": "https://github.com/SnapKit/SnapKit.git",
+        "state": {
+          "branch": "develop",
+          "revision": "58320fe80522414bf3a7e24c88123581dc586752",
+          "version": null
+        }
+      }
+    ]
+  },
+  "version": 1
+}
