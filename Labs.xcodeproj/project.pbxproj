@@ -18,6 +18,7 @@
 		1A2629A029A01AC4004FB552 /* HeroesCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A26299F29A01AC4004FB552 /* HeroesCollectionViewCell.swift */; };
 		1A2629A229A23D13004FB552 /* HeroModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2629A129A23D13004FB552 /* HeroModel.swift */; };
 		1A2629A529A23DDB004FB552 /* HeroesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2629A429A23DDB004FB552 /* HeroesViewModel.swift */; };
+		1AF07EE229AF719100E972D7 /* TriangleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AF07EE129AF719100E972D7 /* TriangleView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,6 +33,7 @@
 		1A26299F29A01AC4004FB552 /* HeroesCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeroesCollectionViewCell.swift; sourceTree = "<group>"; };
 		1A2629A129A23D13004FB552 /* HeroModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeroModel.swift; sourceTree = "<group>"; };
 		1A2629A429A23DDB004FB552 /* HeroesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeroesViewModel.swift; sourceTree = "<group>"; };
+		1AF07EE129AF719100E972D7 /* TriangleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriangleView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,6 +68,7 @@
 		1A26297C299D2BEE004FB552 /* Labs */ = {
 			isa = PBXGroup;
 			children = (
+				1AF07EE029AF715A00E972D7 /* Views */,
 				1A2629A329A23D23004FB552 /* Models */,
 				1A26299C29A018DE004FB552 /* Cell */,
 				1A26297D299D2BEE004FB552 /* AppDelegate.swift */,
@@ -94,6 +97,14 @@
 				1A2629A129A23D13004FB552 /* HeroModel.swift */,
 			);
 			path = Models;
+			sourceTree = "<group>";
+		};
+		1AF07EE029AF715A00E972D7 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				1AF07EE129AF719100E972D7 /* TriangleView.swift */,
+			);
+			path = Views;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -180,6 +191,7 @@
 				1A26297E299D2BEE004FB552 /* AppDelegate.swift in Sources */,
 				1A262980299D2BEE004FB552 /* SceneDelegate.swift in Sources */,
 				1A2629A229A23D13004FB552 /* HeroModel.swift in Sources */,
+				1AF07EE229AF719100E972D7 /* TriangleView.swift in Sources */,
 				1A2629A529A23DDB004FB552 /* HeroesViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -325,6 +337,7 @@
 				INFOPLIST_FILE = Labs/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -351,6 +364,7 @@
 				INFOPLIST_FILE = Labs/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (

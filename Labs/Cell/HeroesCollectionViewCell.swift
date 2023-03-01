@@ -9,7 +9,7 @@ import UIKit
 import CollectionViewPagingLayout
 import SnapKit
 
-class HeroesCollectionViewCell: UICollectionViewCell {
+final class HeroesCollectionViewCell: UICollectionViewCell {
     
     var viewModel: HeroCellViewModel? {
         didSet {
@@ -17,49 +17,58 @@ class HeroesCollectionViewCell: UICollectionViewCell {
         }
     }
     
-    let heroCell = UIView()
-    let heroImage = UIImageView()
-    let heroNameLabel = UILabel()
+    private enum Constraints {
+        static let heroNameLabelBottomConstraintValue = CGFloat(48)
+        static let heroNameLabelLeftRightConstraintValue = CGFloat(40)
+    }
+    
+    private let containerView: UIView = {
+        let uiView = UIView()
+        uiView.layer.cornerRadius = 20
+        uiView.layer.masksToBounds = true
+        return uiView
+    }()
+    private let heroImageView: UIImageView = {
+        let uiImageView = UIImageView()
+        uiImageView.contentMode = .scaleAspectFill
+        return uiImageView
+    }()
+    private let heroNameLabel: UILabel = {
+        let uiLabel = UILabel()
+        uiLabel.font = UIFont.systemFont(ofSize: 32, weight: UIFont.Weight(700))
+        uiLabel.textColor = UIColor.white
+        uiLabel.numberOfLines = 2
+        uiLabel.lineBreakMode = .byWordWrapping
+        return uiLabel
+    }()
 
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        setupView()
+        setUpHierarchy()
+        setUpConstraints()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private func setupView() {
-        heroCell.layer.cornerRadius = 20
-        heroCell.layer.masksToBounds = true
-        contentView.addSubview(heroCell)
-        heroCell.snp.makeConstraints { make in
-            make.top.equalTo(0)
-            make.centerX.equalToSuperview()
-            make.bottom.equalTo(0)
-            make.left.equalTo(0)
-            make.right.equalTo(0)
+    private func setUpHierarchy() {
+        contentView.addSubview(containerView)
+        containerView.addSubview(heroImageView)
+        containerView.addSubview(heroNameLabel)
+    }
+    
+    private func setUpConstraints() {
+        containerView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
         }
-        
-        heroImage.contentMode = .scaleAspectFill
-        heroCell.addSubview(heroImage)
-        heroImage.snp.makeConstraints { make in
-            make.top.equalToSuperview()
-            make.left.equalToSuperview()
-            make.size.equalToSuperview()
+        heroImageView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
         }
-        
-        heroNameLabel.font = UIFont.systemFont(ofSize: 32, weight: UIFont.Weight(700))
-        heroNameLabel.textColor = UIColor.white
-        heroNameLabel.numberOfLines = 2
-        heroNameLabel.lineBreakMode = .byWordWrapping
-        heroCell.addSubview(heroNameLabel)
         heroNameLabel.snp.makeConstraints { make in
-            make.bottom.equalToSuperview().inset(50)
-            make.left.equalToSuperview().inset(40)
-            make.width.equalTo(340 - 80)
+            make.bottom.equalToSuperview().inset(Constraints.heroNameLabelBottomConstraintValue)
+            make.left.right.equalToSuperview().inset(Constraints.heroNameLabelLeftRightConstraintValue)
         }
     }
     
@@ -68,7 +77,7 @@ class HeroesCollectionViewCell: UICollectionViewCell {
              return
          }
         heroNameLabel.text = viewModel.name
-        heroImage.image = viewModel.image
+        heroImageView.image = viewModel.image
     }
     
 

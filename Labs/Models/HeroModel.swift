@@ -8,7 +8,7 @@
 import Foundation
 
 struct HeroModel {
-    let heroName: String
+    let name: String
     let backgroundColor: String
     let imageName: String
 }

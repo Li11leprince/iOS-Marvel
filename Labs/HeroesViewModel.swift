@@ -13,27 +13,27 @@ class HeroesViewModel {
     
     private let heroes: [HeroModel] = [
         HeroModel(
-            heroName: "Deadpool",
+            name: "Deadpool",
             backgroundColor: "Red",
             imageName: "deadpool"
         ),
         HeroModel(
-            heroName: "Iron Man",
+            name: "Iron Man",
             backgroundColor: "Red",
             imageName: "ironman"
         ),
         HeroModel(
-            heroName: "Capitan America",
+            name: "Capitan America",
             backgroundColor: "Red",
             imageName: "capitanamerica"
         ),
         HeroModel(
-            heroName: "Spider man",
+            name: "Spider man",
             backgroundColor: "Red",
             imageName: "spider man"
         ),
         HeroModel(
-            heroName: "Doctor Strange",
+            name: "Doctor Strange",
             backgroundColor: "Red",
             imageName: "doctorstrange"
         )
@@ -41,7 +41,7 @@ class HeroesViewModel {
     
     init() {
         itemViewModels = heroes.enumerated().map { index, hero -> HeroCellViewModel in
-            HeroCellViewModel(index: index, name: hero.heroName)
+            HeroCellViewModel(name: hero.name)
         }
     }
 }
