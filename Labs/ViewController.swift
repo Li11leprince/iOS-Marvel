@@ -31,7 +31,7 @@ final class ViewController: UIViewController {
         
         static let collectionViewTopValue = CGFloat(-32)
         static let collectionViewBottomValue = CGFloat(48)
-        static let collectionViewLeftRightValue = CGFloat(24)
+        static let collectionViewLeftRightValue = CGFloat(32)
     }
     
     private let titleImageView: UIImageView = {
@@ -68,10 +68,6 @@ final class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         initialize()
-    }
-    
-    override var preferredStatusBarStyle: UIStatusBarStyle {
-        return .lightContent
     }
 
     private func initialize() {
@@ -138,6 +134,11 @@ extension ViewController: UICollectionViewDelegate, UIScrollViewDelegate {
         triangle.changeTryangleColor(colors[page])
     }
 
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let detailPageController = DetailPageController()
+        detailPageController.entityModel = viewModel.detailPageViewModel[indexPath.row]
+        navigationController?.pushViewController(detailPageController, animated: true)
+    }
 }
 
 extension UIColor {

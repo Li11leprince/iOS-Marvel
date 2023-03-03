@@ -10,7 +10,5 @@ import UIKit
 
 struct HeroCellViewModel {
     let name: String
-    var image: UIImage? {
-        UIImage(named: name)
-    }
+    let imageURL: URL
 }
