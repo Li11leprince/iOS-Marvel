@@ -8,6 +8,7 @@
 import UIKit
 import CollectionViewPagingLayout
 import SnapKit
+import Kingfisher
 
 final class HeroesCollectionViewCell: UICollectionViewCell {
     
@@ -77,7 +78,14 @@ final class HeroesCollectionViewCell: UICollectionViewCell {
              return
          }
         heroNameLabel.text = viewModel.name
-        heroImageView.image = viewModel.image
+        heroImageView.kf.indicatorType = .activity
+        heroImageView.kf.setImage(with: viewModel.imageURL,
+            placeholder: UIImage(named: "placeholderImage"),
+            options: [
+                .scaleFactor(UIScreen.main.scale),
+                .transition(.fade(1)),
+                .cacheOriginalImage
+        ])
     }
     
 

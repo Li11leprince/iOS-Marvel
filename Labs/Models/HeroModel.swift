@@ -10,5 +10,6 @@ import Foundation
 struct HeroModel {
     let name: String
     let backgroundColor: String
-    let imageName: String
+    let imageURL: URL
+    let description: String
 }
