@@ -58,7 +58,7 @@ final class ViewController: UIViewController {
         layout.numberOfVisibleItems = nil
         uiCollectionView.collectionViewLayout = layout
         uiCollectionView.showsHorizontalScrollIndicator = false
-        uiCollectionView.clipsToBounds = false
+        uiCollectionView.clipsToBounds = true
         uiCollectionView.backgroundColor = .clear
         return uiCollectionView
     }()
@@ -101,7 +101,11 @@ final class ViewController: UIViewController {
         collectionView.snp.makeConstraints { make in
             make.top.equalTo(titleLabel.snp.bottom).inset(Constraints.collectionViewTopValue)
             make.bottom.equalToSuperview().inset(Constraints.collectionViewBottomValue)
-            make.left.right.equalToSuperview().inset(Constraints.collectionViewLeftRightValue)
+            make.left.right.equalToSuperview()
+        }
+        
+        triangle.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
         }
     }
     

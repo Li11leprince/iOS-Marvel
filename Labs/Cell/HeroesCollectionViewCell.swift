@@ -62,7 +62,8 @@ final class HeroesCollectionViewCell: UICollectionViewCell {
     
     private func setUpConstraints() {
         containerView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
+            make.left.right.equalToSuperview().inset(32)
+            make.bottom.top.equalToSuperview()
         }
         heroImageView.snp.makeConstraints { make in
             make.edges.equalToSuperview()

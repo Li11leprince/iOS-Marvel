@@ -25,6 +25,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let mainView = ViewController()
         nav1.viewControllers = [mainView]
         nav1.navigationBar.barStyle = .black
+        nav1.navigationBar.tintColor = .white
         window?.rootViewController = nav1
         window?.makeKeyAndVisible()
     }
