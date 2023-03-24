@@ -11,7 +11,10 @@ import Kingfisher
 
 final class DetailPageController: UIViewController {
     
-    var entityModel: DetailPageViewModel!
+    var id: Int!
+    
+    private let detailPageViewModel = DetailPageViewModel()
+    private var hero: [HeroModel]!
     private enum Constraints {
         static let descriptionLabelBottomConstraintValue = CGFloat(56)
         static let descriptionLabelLeftRightConstraintValue = CGFloat(32)
@@ -44,6 +47,16 @@ final class DetailPageController: UIViewController {
         return uiLabel
     }()
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
+        detailPageViewModel.getHero(complition: { (hero, status) in
+            if status {
+                self.hero = hero
+                self.setUpView()
+            }
+        }, id: self.id)
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         Initialize()
@@ -73,20 +86,22 @@ final class DetailPageController: UIViewController {
     
     private func setUpView() {
         backgroundImageView.kf.indicatorType = .activity
-        backgroundImageView.kf.setImage(with: entityModel.imageURL,
+        backgroundImageView.kf.setImage(with: hero[0].thumbnail,
                                         placeholder: UIImage(named: "placeholderImage"),
                                         options: [
                                             .scaleFactor(UIScreen.main.scale),
                                             .transition(.fade(1)),
                                             .cacheOriginalImage
                                     ])
-        titleLabel.text = entityModel.name
-        descriptionLabel.text = entityModel.description
+        titleLabel.text = hero[0].name
+        descriptionLabel.text = hero[0].description
     }
     
     private func Initialize() {
         setUpHierarchy()
         setUpConstraints()
-        setUpView()
+        if detailPageViewModel.isLoaded {
+            setUpView()
+        }
     }
 }

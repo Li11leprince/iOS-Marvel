@@ -7,8 +7,11 @@
 
 import Foundation
 import UIKit
+ 
+    struct HeroCellViewModel {
+        let name: String
+        let imageURL: URL
+    }
 
-struct HeroCellViewModel {
-    let name: String
-    let imageURL: URL
-}
+
+

@@ -8,8 +8,9 @@
 import Foundation
 
 struct HeroModel {
+    let id: Int
     let name: String
-    let backgroundColor: String
-    let imageURL: URL
     let description: String
+    let modified: String
+    let thumbnail: URL
 }

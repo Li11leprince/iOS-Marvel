@@ -12,7 +12,7 @@ import Kingfisher
 
 final class HeroesCollectionViewCell: UICollectionViewCell {
     
-    var viewModel: HeroCellViewModel? {
+    var viewModel: HeroModel? {
         didSet {
             updateViews()
         }
@@ -80,7 +80,8 @@ final class HeroesCollectionViewCell: UICollectionViewCell {
          }
         heroNameLabel.text = viewModel.name
         heroImageView.kf.indicatorType = .activity
-        heroImageView.kf.setImage(with: viewModel.imageURL,
+        let imageURL = viewModel.thumbnail
+        heroImageView.kf.setImage(with: imageURL,
             placeholder: UIImage(named: "placeholderImage"),
             options: [
                 .scaleFactor(UIScreen.main.scale),
@@ -105,10 +106,10 @@ extension HeroesCollectionViewCell: ScaleTransformView {
             translationCurve: .linear
         )
     }
-    
+
     func transform(progress: CGFloat) {
         applyScaleTransform(progress: progress)
     }
-    
+
 }
 

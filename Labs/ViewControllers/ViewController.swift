@@ -9,9 +9,19 @@ import UIKit
 import SnapKit
 import CollectionViewPagingLayout
 
+public func delay(_ delay: Double, closure: @escaping () -> Void) {
+    let deadline = DispatchTime.now() + Double(Int64(delay * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
+    DispatchQueue.main.asyncAfter(
+        deadline: deadline,
+        execute: closure
+    )
+}
+
 final class ViewController: UIViewController {
 
-    var viewModel = HeroesViewModel()
+    var heroes: [HeroModel]?
+    
+    private var page = 0
     
     private let colors = [
         UIColor(hex: 0x760208).cgColor,
@@ -34,6 +44,18 @@ final class ViewController: UIViewController {
         static let collectionViewLeftRightValue = CGFloat(32)
     }
     
+    private lazy var paginationManager: HorizontalPaginationManager = {
+        let manager = HorizontalPaginationManager(scrollView: self.collectionView)
+        manager.delegate = self
+        return manager
+    }()
+    
+    private var isDragging: Bool {
+        return self.collectionView.isDragging
+    }
+    
+    private let heroesViewModel = HeroesViewModel()
+    
     private let titleImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = UIImage(named: "logo.png")
@@ -49,14 +71,13 @@ final class ViewController: UIViewController {
         return uiLabel
     }()
     
-    private let collectionView: UICollectionView = {
-        let uiCollectionView = UICollectionView(frame: .zero, collectionViewLayout: CollectionViewPagingLayout())
+    private let layout = CollectionViewPagingLayout()
+    private lazy var collectionView: UICollectionView = {
+        layout.numberOfVisibleItems = nil
+        let uiCollectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         uiCollectionView.register(HeroesCollectionViewCell.self, forCellWithReuseIdentifier: String(describing: HeroesCollectionViewCell.self))
         uiCollectionView.isPagingEnabled = true
         uiCollectionView.isUserInteractionEnabled = true
-        let layout = CollectionViewPagingLayout()
-        layout.numberOfVisibleItems = nil
-        uiCollectionView.collectionViewLayout = layout
         uiCollectionView.showsHorizontalScrollIndicator = false
         uiCollectionView.clipsToBounds = true
         uiCollectionView.backgroundColor = .clear
@@ -65,9 +86,25 @@ final class ViewController: UIViewController {
     
     private var triangle: TriangleView!
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
+        if !heroesViewModel.isLoaded {
+            heroesViewModel.getHeroes(complition: { (heroes, status) in
+                if status {
+                    self.heroes = heroes
+                    self.collectionView.reloadData()
+                    self.collectionView.collectionViewLayout.invalidateLayout()
+                    self.layout.setCurrentPage(self.page)
+                }
+            }, offset: 0)
+        }
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         initialize()
+        self.setupPagination()
+        self.fetchItems()
     }
 
     private func initialize() {
@@ -117,13 +154,13 @@ final class ViewController: UIViewController {
 }
 
 extension ViewController: UICollectionViewDataSource {
-    
+
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        viewModel.itemViewModels.count
+        heroes?.count ?? 3
     }
-    
+
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let itemViewModel = viewModel.itemViewModels[indexPath.row]
+        let itemViewModel = heroes?[indexPath.row]
         let cell: HeroesCollectionViewCell = collectionView.dequeueReusableCell(withReuseIdentifier: String(describing: HeroesCollectionViewCell.self)  , for: indexPath) as! HeroesCollectionViewCell
         cell.viewModel = itemViewModel
         return cell
@@ -134,26 +171,51 @@ extension ViewController: UICollectionViewDataSource {
 extension ViewController: UICollectionViewDelegate, UIScrollViewDelegate {
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         let pageWidth = scrollView.frame.size.width
-        let page = Int(floor((scrollView.contentOffset.x - pageWidth / 2) / pageWidth) + 1)
-        triangle.changeTryangleColor(colors[page])
+        page = Int(floor((scrollView.contentOffset.x - pageWidth / 2) / pageWidth) + 1)
+        triangle.changeTryangleColor(colors[page % colors.count])
     }
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let detailPageController = DetailPageController()
-        detailPageController.entityModel = viewModel.detailPageViewModel[indexPath.row]
+        detailPageController.id = heroes?[indexPath.row].id
         navigationController?.pushViewController(detailPageController, animated: true)
     }
+    
 }
 
-extension UIColor {
-    convenience init(hex: Int) {
-        self.init(
-            red: CGFloat((hex & 0xFF0000) >> 16) / 255.0,
-            green: CGFloat((hex & 0x00FF00) >> 8) / 255.0,
-            blue: CGFloat(hex & 0x0000FF) / 255.0,
-            alpha: CGFloat(1.0)
-        )
+extension ViewController: HorizontalPaginationManagerDelegate {
+    
+    private func setupPagination() {
+        self.paginationManager.refreshViewColor = .green
+        self.paginationManager.loaderColor = .red
     }
+    
+    private func fetchItems() {
+        self.paginationManager.initialLoad()
+    }
+    
+    func refreshAll(completion: @escaping (Bool) -> Void) {
+        delay(2.0) {
+            self.heroesViewModel.getHeroes(complition: { (heroes, status) in
+                if status {
+                    self.heroes = heroes
+                    self.collectionView.reloadData()
+                    self.collectionView.collectionViewLayout.invalidateLayout()
+                    self.layout.setCurrentPage(self.page)
+                }
+            }, offset: 0)
+            completion(true)
+        }
+    }
+    
+    func loadMore(completion: @escaping (Bool) -> Void) {
+//        delay(2.0) {
+//            self.items.append(contentsOf: [6, 7, 8, 9, 10])
+//            self.collectionView.reloadData()
+//            completion(true)
+//        }
+    }
+    
 }
 
 
