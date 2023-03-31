@@ -26,6 +26,7 @@ final class DetailPageController: UIViewController {
     private let backgroundImageView: UIImageView = {
         let uiImageView = UIImageView()
         uiImageView.contentMode = .scaleAspectFill
+        uiImageView.clipsToBounds = true
         return uiImageView
     }()
     
@@ -43,16 +44,34 @@ final class DetailPageController: UIViewController {
         uiLabel.font = UIFont.systemFont(ofSize: 24, weight: UIFont.Weight(400))
         uiLabel.textColor = UIColor.white
         uiLabel.numberOfLines = 2
-        uiLabel.lineBreakMode = .byWordWrapping
+        uiLabel.lineBreakMode = .byTruncatingTail
         return uiLabel
+    }()
+    
+    private lazy var gradientView: GradientView = {
+        let gv = GradientView(frame: view.frame)
+        gv.layer.isHidden = true
+        return gv
+    }()
+    
+    private let alert: UIAlertController = {
+        let alert = UIAlertController(title: "Error!", message: "This is an alert.", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: "Default action"), style: .default, handler: { _ in
+            NSLog("The \"OK\" alert occured.")
+            })
+        )
+        return alert
     }()
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
-        detailPageViewModel.getHero(complition: { (hero, status) in
+        detailPageViewModel.getHero(complition: { (hero, status, error) in
             if status {
                 self.hero = hero
                 self.setUpView()
+            } else {
+                self.alert.message = error?.localizedDescription
+                self.present(self.alert, animated: true, completion: nil)
             }
         }, id: self.id)
     }
@@ -64,6 +83,7 @@ final class DetailPageController: UIViewController {
     
     private func setUpHierarchy() {
         view.addSubview(backgroundImageView)
+        view.addSubview(gradientView)
         view.addSubview(titleLabel)
         view.addSubview(descriptionLabel)
     }
@@ -82,6 +102,10 @@ final class DetailPageController: UIViewController {
             make.bottom.equalTo(descriptionLabel.snp.top).inset(Constraints.titleLabelBottomConstraintValue)
             make.left.right.equalToSuperview().inset(Constraints.titleLabelLeftRightConstraintValue)
         }
+        
+        gradientView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
     }
     
     private func setUpView() {
@@ -95,6 +119,7 @@ final class DetailPageController: UIViewController {
                                     ])
         titleLabel.text = hero[0].name
         descriptionLabel.text = hero[0].description
+        gradientView.layer.isHidden = false
     }
     
     private func Initialize() {

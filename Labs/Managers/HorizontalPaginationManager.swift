@@ -35,10 +35,6 @@ class HorizontalPaginationManager: NSObject {
         self.removeScrollViewOffsetObserver()
     }
     
-    func initialLoad() {
-        self.delegate?.refreshAll(completion: { _ in })
-    }
-    
 }
 
 
@@ -95,7 +91,7 @@ extension HorizontalPaginationManager {
     
 }
 
-// MARK: OFFSET OBSERVER
+
 extension HorizontalPaginationManager {
     
     private func addScrollViewOffsetObserver() {
@@ -144,7 +140,7 @@ extension HorizontalPaginationManager {
         let frameWidth = self.scrollView.bounds.size.width
         let diffX = contentWidth - frameWidth
         if contentWidth > frameWidth,
-        offsetX > (diffX + 130) && !self.isLoading {
+        offsetX > (diffX + 100) && !self.isLoading {
             self.isLoading = true
             self.addRightMostControl()
             self.delegate?.loadMore { success in

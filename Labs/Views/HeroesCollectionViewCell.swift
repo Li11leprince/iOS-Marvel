@@ -29,10 +29,15 @@ final class HeroesCollectionViewCell: UICollectionViewCell {
         uiView.layer.masksToBounds = true
         return uiView
     }()
-    private let heroImageView: UIImageView = {
+    let heroImageView: UIImageView = {
         let uiImageView = UIImageView()
         uiImageView.contentMode = .scaleAspectFill
         return uiImageView
+    }()
+    private lazy var gradientView: GradientView = {
+        let gv = GradientView(frame: contentView.frame)
+        gv.layer.isHidden = true
+        return gv
     }()
     private let heroNameLabel: UILabel = {
         let uiLabel = UILabel()
@@ -57,6 +62,7 @@ final class HeroesCollectionViewCell: UICollectionViewCell {
     private func setUpHierarchy() {
         contentView.addSubview(containerView)
         containerView.addSubview(heroImageView)
+        containerView.addSubview(gradientView)
         containerView.addSubview(heroNameLabel)
     }
     
@@ -66,6 +72,9 @@ final class HeroesCollectionViewCell: UICollectionViewCell {
             make.bottom.top.equalToSuperview()
         }
         heroImageView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+        gradientView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
         heroNameLabel.snp.makeConstraints { make in
@@ -88,6 +97,7 @@ final class HeroesCollectionViewCell: UICollectionViewCell {
                 .transition(.fade(1)),
                 .cacheOriginalImage
         ])
+        gradientView.layer.isHidden = false
     }
     
 

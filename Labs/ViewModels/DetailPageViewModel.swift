@@ -14,15 +14,15 @@ final class DetailPageViewModel {
     
     var isLoaded = false
     
-    func getHero(complition: @escaping (_ heroes: [HeroModel], _ status: Bool) -> (), id: Int) {
+    func getHero(complition: @escaping (_ heroes: [HeroModel], _ status: Bool, _ error: Error?) -> (), id: Int) {
         isLoaded = false
-        api.getCharacter(completion: { [weak self] (heroes, status, message) in
+        api.getCharacter(completion: { [weak self] (heroes, status, error) in
             if status {
                 let heroList = heroes!.data.results.enumerated().map{ index, hero -> HeroModel in HeroModel(id: hero.id, name: hero.name, description: hero.description, modified: hero.modified, thumbnail: URL(string: hero.thumbnail.path.inserted("s", at: hero.thumbnail.path.firstIndex(of: ":")!) + "." + hero.thumbnail.extension)!) }
                 self?.isLoaded = true
-                complition(heroList, true)
+                complition(heroList, true, nil)
             } else {
-                complition([], false)
+                complition([], false, error)
             }
         }, id: id)
     }

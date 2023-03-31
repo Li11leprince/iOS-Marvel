@@ -13,15 +13,15 @@ final class HeroesViewModel {
     
     var isLoaded = false
     
-    func getHeroes(complition: @escaping (_ heroes: [HeroModel], _ status: Bool) -> (), offset: Int) {
+    func getHeroes(complition: @escaping (_ heroes: [HeroModel], _ status: Bool, _ error: Error?) -> (), offset: Int) {
         isLoaded = false
-        api.getAllCharacters(completion: { [weak self] (heroes, status, message) in
+        api.getAllCharacters(completion: { [weak self] (heroes, status, error) in
             if status {
                 let heroList = heroes!.data.results.enumerated().map{ index, hero -> HeroModel in HeroModel(id: hero.id, name: hero.name, description: hero.description, modified: hero.modified, thumbnail: URL(string: hero.thumbnail.path.inserted("s", at: hero.thumbnail.path.firstIndex(of: ":")!) + "." + hero.thumbnail.extension)!) }
                 self?.isLoaded = true
-                complition(heroList, true)
+                complition(heroList, true, nil)
             } else {
-                complition([], false)
+                complition([], false, error)
             }
         }, offset: offset)
     }

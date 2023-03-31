@@ -8,14 +8,7 @@
 import UIKit
 import SnapKit
 import CollectionViewPagingLayout
-
-public func delay(_ delay: Double, closure: @escaping () -> Void) {
-    let deadline = DispatchTime.now() + Double(Int64(delay * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
-    DispatchQueue.main.asyncAfter(
-        deadline: deadline,
-        execute: closure
-    )
-}
+import Kingfisher
 
 final class ViewController: UIViewController {
 
@@ -23,13 +16,7 @@ final class ViewController: UIViewController {
     
     private var page = 0
     
-    private let colors = [
-        UIColor(hex: 0x760208).cgColor,
-        UIColor(hex: 0x99151A).cgColor,
-        UIColor(hex: 0x3D4DB2).cgColor,
-        UIColor(hex: 0xD0151A).cgColor,
-        UIColor(hex: 0x067A53).cgColor
-    ]
+    private var offset = 0
     
     private enum Constraints {
         static let titleImageViewTopConstraintValue = CGFloat(80)
@@ -86,15 +73,34 @@ final class ViewController: UIViewController {
     
     private var triangle: TriangleView!
     
+    private let loadingView = LoadingView()
+    
+    private let alert: UIAlertController = {
+        let alert = UIAlertController(title: "Error!", message: "This is an alert.", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: "Default action"), style: .default, handler: { _ in
+            NSLog("The \"OK\" alert occured.")
+            })
+        )
+        return alert
+    }()
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
         if !heroesViewModel.isLoaded {
-            heroesViewModel.getHeroes(complition: { (heroes, status) in
+            loadingView.start()
+            heroesViewModel.getHeroes(complition: { (heroes, status, error) in
                 if status {
+                    self.loadingView.stop()
                     self.heroes = heroes
                     self.collectionView.reloadData()
-                    self.collectionView.collectionViewLayout.invalidateLayout()
-                    self.layout.setCurrentPage(self.page)
+                    self.layout.setCurrentPage(0)
+                    self.collectionView.performBatchUpdates({
+                        self.collectionView.collectionViewLayout.invalidateLayout()
+                    })
+                } else {
+                    self.loadingView.stop()
+                    self.alert.message = error?.localizedDescription
+                    self.present(self.alert, animated: true, completion: nil)
                 }
             }, offset: 0)
         }
@@ -104,7 +110,6 @@ final class ViewController: UIViewController {
         super.viewDidLoad()
         initialize()
         self.setupPagination()
-        self.fetchItems()
     }
 
     private func initialize() {
@@ -121,9 +126,15 @@ final class ViewController: UIViewController {
         view.addSubview(titleImageView)
         view.addSubview(titleLabel)
         view.addSubview(collectionView)
+        view.addSubview(loadingView)
     }
     
     private func setUpConstraints() {
+        
+        loadingView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+        
         titleImageView.snp.makeConstraints { make in
             make.left.right.equalToSuperview().inset(Constraints.titleImageViewLeftRightConstraintValue)
             make.top.equalToSuperview().inset(Constraints.titleImageViewTopConstraintValue)
@@ -151,6 +162,20 @@ final class ViewController: UIViewController {
         collectionView.delegate = self
     }
     
+    private func getImageAverageColor() -> CGColor {
+        var color = UIColor(hex: 0x000000).cgColor
+        guard let heroes = heroes else {return color}
+        KingfisherManager.shared.retrieveImage(with: heroes[layout.currentPage].thumbnail, options: nil, progressBlock: nil, completionHandler: { result in
+            switch result {
+            case .success(let value):
+                color = value.image.averageColor?.cgColor ?? UIColor(hex: 0xFF0000).cgColor
+            case .failure(_):
+                color = UIColor(hex: 0xFF0000).cgColor
+            }
+        })
+        return color
+    }
+    
 }
 
 extension ViewController: UICollectionViewDataSource {
@@ -170,9 +195,7 @@ extension ViewController: UICollectionViewDataSource {
 
 extension ViewController: UICollectionViewDelegate, UIScrollViewDelegate {
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        let pageWidth = scrollView.frame.size.width
-        page = Int(floor((scrollView.contentOffset.x - pageWidth / 2) / pageWidth) + 1)
-        triangle.changeTryangleColor(colors[page % colors.count])
+        self.triangle.changeTryangleColor(getImageAverageColor())
     }
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
@@ -186,34 +209,43 @@ extension ViewController: UICollectionViewDelegate, UIScrollViewDelegate {
 extension ViewController: HorizontalPaginationManagerDelegate {
     
     private func setupPagination() {
-        self.paginationManager.refreshViewColor = .green
-        self.paginationManager.loaderColor = .red
-    }
-    
-    private func fetchItems() {
-        self.paginationManager.initialLoad()
+        self.paginationManager.refreshViewColor = .clear
+        self.paginationManager.loaderColor = .white
     }
     
     func refreshAll(completion: @escaping (Bool) -> Void) {
-        delay(2.0) {
-            self.heroesViewModel.getHeroes(complition: { (heroes, status) in
+            self.heroesViewModel.getHeroes(complition: { (heroes, status, error) in
                 if status {
                     self.heroes = heroes
                     self.collectionView.reloadData()
-                    self.collectionView.collectionViewLayout.invalidateLayout()
-                    self.layout.setCurrentPage(self.page)
+                    self.collectionView.performBatchUpdates({
+                        self.collectionView.collectionViewLayout.invalidateLayout()
+                    })
+                    completion(true)
+                } else {
+                    completion(false)
+                    self.alert.message = error?.localizedDescription
+                    self.present(self.alert, animated: true, completion: nil)
                 }
             }, offset: 0)
-            completion(true)
-        }
     }
     
     func loadMore(completion: @escaping (Bool) -> Void) {
-//        delay(2.0) {
-//            self.items.append(contentsOf: [6, 7, 8, 9, 10])
-//            self.collectionView.reloadData()
-//            completion(true)
-//        }
+        offset += 20
+        self.heroesViewModel.getHeroes(complition: { (heroes, status, error) in
+            if status {
+                self.heroes! += heroes
+                self.collectionView.reloadData()
+                self.collectionView.performBatchUpdates({
+                    self.collectionView.collectionViewLayout.invalidateLayout()
+                })
+                completion(true)
+            } else {
+                completion(false)
+                self.alert.message = error?.localizedDescription
+                self.present(self.alert, animated: true, completion: nil)
+            }
+        }, offset: offset)
     }
     
 }
