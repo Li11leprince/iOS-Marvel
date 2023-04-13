@@ -22,7 +22,7 @@ class TriangleView : UIView {
         context.addLine(to: CGPoint(x: frame.minX, y: frame.maxY))
         
         shapeLayer.path = context.cgPath
-        shapeLayer.fillColor = UIColor(hex: 0x760208).cgColor
+        shapeLayer.fillColor = UIColor(hex: 0x000000, alpha: 0).cgColor  //UIColor(hex: 0x760208).cgColor
     }
     
     func changeTryangleColor(_ color: CGColor) {

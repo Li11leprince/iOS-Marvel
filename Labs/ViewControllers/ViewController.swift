@@ -12,7 +12,7 @@ import Kingfisher
 
 final class ViewController: UIViewController {
 
-    var heroes: [HeroModel]?
+    var heroes: [HeroListModel]?
     
     private var page = 0
     
@@ -88,21 +88,23 @@ final class ViewController: UIViewController {
         super.viewWillAppear(true)
         if !heroesViewModel.isLoaded {
             loadingView.start()
-            heroesViewModel.getHeroes(complition: { (heroes, status, error) in
-                if status {
+            heroesViewModel.getHeroes(offset: 0) { (response) in
+                switch response {
+                case .success(let heroes):
                     self.loadingView.stop()
                     self.heroes = heroes
+                    self.triangle.changeTryangleColor(self.getImageAverageColor())
                     self.collectionView.reloadData()
                     self.layout.setCurrentPage(0)
                     self.collectionView.performBatchUpdates({
                         self.collectionView.collectionViewLayout.invalidateLayout()
                     })
-                } else {
+                case .failure(let error):
                     self.loadingView.stop()
-                    self.alert.message = error?.localizedDescription
+                    self.alert.message = error.localizedDescription
                     self.present(self.alert, animated: true, completion: nil)
                 }
-            }, offset: 0)
+            }
         }
     }
     
@@ -163,14 +165,14 @@ final class ViewController: UIViewController {
     }
     
     private func getImageAverageColor() -> CGColor {
-        var color = UIColor(hex: 0x000000).cgColor
+        var color = UIColor(hex: 0x760208).cgColor
         guard let heroes = heroes else {return color}
         KingfisherManager.shared.retrieveImage(with: heroes[layout.currentPage].thumbnail, options: nil, progressBlock: nil, completionHandler: { result in
             switch result {
             case .success(let value):
-                color = value.image.averageColor?.cgColor ?? UIColor(hex: 0xFF0000).cgColor
+                color = value.image.averageColor?.cgColor ?? UIColor(hex: 0x760208).cgColor
             case .failure(_):
-                color = UIColor(hex: 0xFF0000).cgColor
+                color = UIColor(hex: 0x760208).cgColor
             }
         })
         return color
@@ -214,42 +216,45 @@ extension ViewController: HorizontalPaginationManagerDelegate {
     }
     
     func refreshAll(completion: @escaping (Bool) -> Void) {
-            self.heroesViewModel.getHeroes(complition: { (heroes, status, error) in
-                if status {
+            self.heroesViewModel.getHeroes(offset: 0) { (response) in
+                switch response {
+                case .success(let heroes):
                     self.heroes = heroes
                     self.collectionView.reloadData()
                     self.collectionView.performBatchUpdates({
                         self.collectionView.collectionViewLayout.invalidateLayout()
                     })
                     completion(true)
-                } else {
+                case .failure(let error):
                     completion(false)
-                    self.alert.message = error?.localizedDescription
+                    self.alert.message = error.localizedDescription
                     self.present(self.alert, animated: true, completion: nil)
                 }
-            }, offset: 0)
+            }
     }
     
     func loadMore(completion: @escaping (Bool) -> Void) {
         offset += 20
-        self.heroesViewModel.getHeroes(complition: { (heroes, status, error) in
-            if status {
+        self.heroesViewModel.getHeroes(offset: offset) { (response) in
+            switch response {
+            case .success(let heroes):
                 self.heroes! += heroes
                 self.collectionView.reloadData()
                 self.collectionView.performBatchUpdates({
                     self.collectionView.collectionViewLayout.invalidateLayout()
                 })
                 completion(true)
-            } else {
+            case .failure(let error):
                 completion(false)
-                self.alert.message = error?.localizedDescription
+                self.alert.message = error.localizedDescription
                 self.present(self.alert, animated: true, completion: nil)
             }
-        }, offset: offset)
+        }
     }
     
 }
 
-
+//selfsizing cell
+//difable datasource
 
 

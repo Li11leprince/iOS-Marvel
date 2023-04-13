@@ -10,20 +10,20 @@ import UIKit
 
 final class DetailPageViewModel {
     
-    private let api = API()
+    private let api = APIManager()
     
     var isLoaded = false
     
-    func getHero(complition: @escaping (_ heroes: [HeroModel], _ status: Bool, _ error: Error?) -> (), id: Int) {
+    func getHero(id: Int, complition: @escaping (_ response: Swift.Result<HeroModel, Error>) -> ()) {
         isLoaded = false
-        api.getCharacter(completion: { [weak self] (heroes, status, error) in
-            if status {
-                let heroList = heroes!.data.results.enumerated().map{ index, hero -> HeroModel in HeroModel(id: hero.id, name: hero.name, description: hero.description, modified: hero.modified, thumbnail: URL(string: hero.thumbnail.path.inserted("s", at: hero.thumbnail.path.firstIndex(of: ":")!) + "." + hero.thumbnail.extension)!) }
+        api.getCharacter(id: id) { [weak self] (response) in
+            switch response {
+            case .success(let hero):
                 self?.isLoaded = true
-                complition(heroList, true, nil)
-            } else {
-                complition([], false, error)
+                complition(.success(hero))
+            case .failure(let error):
+                complition(.failure(error))
             }
-        }, id: id)
+        }
     }
 }

@@ -9,20 +9,22 @@ import Foundation
 
 final class HeroesViewModel {
     
-    private let api = API()
+    private let api = APIManager()
+    private let db = DBManager()
     
     var isLoaded = false
     
-    func getHeroes(complition: @escaping (_ heroes: [HeroModel], _ status: Bool, _ error: Error?) -> (), offset: Int) {
+    func getHeroes(offset: Int, complition: @escaping (_ response: Swift.Result<[HeroListModel], Error>) -> ()) {
         isLoaded = false
-        api.getAllCharacters(completion: { [weak self] (heroes, status, error) in
-            if status {
-                let heroList = heroes!.data.results.enumerated().map{ index, hero -> HeroModel in HeroModel(id: hero.id, name: hero.name, description: hero.description, modified: hero.modified, thumbnail: URL(string: hero.thumbnail.path.inserted("s", at: hero.thumbnail.path.firstIndex(of: ":")!) + "." + hero.thumbnail.extension)!) }
+        api.getAllCharacters(offset: offset) { [weak self] (response) in
+            switch response {
+            case .success(let heroes):
                 self?.isLoaded = true
-                complition(heroList, true, nil)
-            } else {
-                complition([], false, error)
+                self?.db.putHeroes(heroes: heroes)
+                complition(.success(heroes))
+            case .failure(let error):
+                complition(.success(self?.db.getHeroes() ?? []))
             }
-        }, offset: offset)
+        }
     }
 }

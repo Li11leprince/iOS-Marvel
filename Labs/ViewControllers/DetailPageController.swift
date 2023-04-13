@@ -14,7 +14,6 @@ final class DetailPageController: UIViewController {
     var id: Int!
     
     private let detailPageViewModel = DetailPageViewModel()
-    private var hero: [HeroModel]!
     private enum Constraints {
         static let descriptionLabelBottomConstraintValue = CGFloat(56)
         static let descriptionLabelLeftRightConstraintValue = CGFloat(32)
@@ -65,15 +64,15 @@ final class DetailPageController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
-        detailPageViewModel.getHero(complition: { (hero, status, error) in
-            if status {
-                self.hero = hero
-                self.setUpView()
-            } else {
-                self.alert.message = error?.localizedDescription
+        detailPageViewModel.getHero(id: self.id) { (response) in
+            switch response {
+            case .success(let hero):
+                self.setUpView(hero: hero)
+            case .failure(let error):
+                self.alert.message = error.localizedDescription
                 self.present(self.alert, animated: true, completion: nil)
             }
-        }, id: self.id)
+        }
     }
     
     override func viewDidLoad() {
@@ -108,25 +107,25 @@ final class DetailPageController: UIViewController {
         }
     }
     
-    private func setUpView() {
+    private func setUpView(hero: HeroModel) {
         backgroundImageView.kf.indicatorType = .activity
-        backgroundImageView.kf.setImage(with: hero[0].thumbnail,
+        backgroundImageView.kf.setImage(with: hero.thumbnail,
                                         placeholder: UIImage(named: "placeholderImage"),
                                         options: [
                                             .scaleFactor(UIScreen.main.scale),
                                             .transition(.fade(1)),
                                             .cacheOriginalImage
                                     ])
-        titleLabel.text = hero[0].name
-        descriptionLabel.text = hero[0].description
+        titleLabel.text = hero.name
+        descriptionLabel.text = hero.description
         gradientView.layer.isHidden = false
     }
     
     private func Initialize() {
         setUpHierarchy()
         setUpConstraints()
-        if detailPageViewModel.isLoaded {
-            setUpView()
-        }
+//        if detailPageViewModel.isLoaded {
+//            setUpView()
+//        }
     }
 }

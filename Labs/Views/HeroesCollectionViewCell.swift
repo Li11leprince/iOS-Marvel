@@ -12,7 +12,7 @@ import Kingfisher
 
 final class HeroesCollectionViewCell: UICollectionViewCell {
     
-    var viewModel: HeroModel? {
+    var viewModel: HeroListModel? {
         didSet {
             updateViews()
         }
