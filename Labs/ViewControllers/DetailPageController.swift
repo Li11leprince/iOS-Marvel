@@ -64,9 +64,12 @@ final class DetailPageController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
-        detailPageViewModel.getHero(id: self.id) { (response) in
+        detailPageViewModel.getHero(id: self.id) { (response, isOffline) in
             switch response {
             case .success(let hero):
+                if isOffline {
+                    self.showToast(message: "Offline mode", font: .systemFont(ofSize: 14.0))
+                }
                 self.setUpView(hero: hero)
             case .failure(let error):
                 self.alert.message = error.localizedDescription

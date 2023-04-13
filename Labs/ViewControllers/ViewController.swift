@@ -88,17 +88,20 @@ final class ViewController: UIViewController {
         super.viewWillAppear(true)
         if !heroesViewModel.isLoaded {
             loadingView.start()
-            heroesViewModel.getHeroes(offset: 0) { (response) in
+            heroesViewModel.getHeroes(offset: 0) { (response, isOffline) in
                 switch response {
                 case .success(let heroes):
+                    if isOffline {
+                        self.showToast(message: "Offline mode", font: .systemFont(ofSize: 14.0))
+                    }
                     self.loadingView.stop()
                     self.heroes = heroes
-                    self.triangle.changeTryangleColor(self.getImageAverageColor())
                     self.collectionView.reloadData()
                     self.layout.setCurrentPage(0)
                     self.collectionView.performBatchUpdates({
                         self.collectionView.collectionViewLayout.invalidateLayout()
                     })
+                    self.triangle.changeTryangleColor(self.getImageAverageColor())
                 case .failure(let error):
                     self.loadingView.stop()
                     self.alert.message = error.localizedDescription
@@ -183,7 +186,7 @@ final class ViewController: UIViewController {
 extension ViewController: UICollectionViewDataSource {
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        heroes?.count ?? 3
+        heroes?.count ?? 0
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -216,9 +219,12 @@ extension ViewController: HorizontalPaginationManagerDelegate {
     }
     
     func refreshAll(completion: @escaping (Bool) -> Void) {
-            self.heroesViewModel.getHeroes(offset: 0) { (response) in
+            self.heroesViewModel.getHeroes(offset: 0) { (response, isOffline) in
                 switch response {
                 case .success(let heroes):
+                    if isOffline {
+                        self.showToast(message: "Offline mode", font: .systemFont(ofSize: 14.0))
+                    }
                     self.heroes = heroes
                     self.collectionView.reloadData()
                     self.collectionView.performBatchUpdates({
@@ -235,7 +241,7 @@ extension ViewController: HorizontalPaginationManagerDelegate {
     
     func loadMore(completion: @escaping (Bool) -> Void) {
         offset += 20
-        self.heroesViewModel.getHeroes(offset: offset) { (response) in
+        self.heroesViewModel.getHeroes(offset: offset) { (response, isOffline) in
             switch response {
             case .success(let heroes):
                 self.heroes! += heroes

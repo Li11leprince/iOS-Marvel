@@ -14,16 +14,22 @@ final class HeroesViewModel {
     
     var isLoaded = false
     
-    func getHeroes(offset: Int, complition: @escaping (_ response: Swift.Result<[HeroListModel], Error>) -> ()) {
+    func getHeroes(offset: Int, complition: @escaping (_ response: Swift.Result<[HeroListModel], Error>, _ isOffline: Bool) -> ()) {
         isLoaded = false
         api.getAllCharacters(offset: offset) { [weak self] (response) in
             switch response {
             case .success(let heroes):
                 self?.isLoaded = true
                 self?.db.putHeroes(heroes: heroes)
-                complition(.success(heroes))
+                complition(.success(heroes), false)
             case .failure(let error):
-                complition(.success(self?.db.getHeroes() ?? []))
+                let dbData = self?.db.getHeroes() ?? []
+                if dbData.isEmpty {
+                    complition(.failure(error), false)
+                } else {
+                    self?.isLoaded = true
+                    complition(.success(dbData), true)
+                }
             }
         }
     }

@@ -11,18 +11,25 @@ import UIKit
 final class DetailPageViewModel {
     
     private let api = APIManager()
+    private let db = DBManager()
     
     var isLoaded = false
     
-    func getHero(id: Int, complition: @escaping (_ response: Swift.Result<HeroModel, Error>) -> ()) {
+    func getHero(id: Int, complition: @escaping (_ response: Swift.Result<HeroModel, Error>, _ isOffline: Bool) -> ()) {
         isLoaded = false
         api.getCharacter(id: id) { [weak self] (response) in
             switch response {
             case .success(let hero):
                 self?.isLoaded = true
-                complition(.success(hero))
+                self?.db.putHero(hero: hero)
+                complition(.success(hero), false)
             case .failure(let error):
-                complition(.failure(error))
+                guard let dbData = self?.db.getHero(id: id) else {
+                    complition(.failure(error), false)
+                    return
+                }
+                self?.isLoaded = true
+                complition(.success(dbData), true)
             }
         }
     }

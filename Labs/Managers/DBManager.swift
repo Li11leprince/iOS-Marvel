@@ -28,8 +28,34 @@ class DBManager {
         var heroes: [HeroListModel] = []
         let heroesRealm = realm.objects(HeroList.self)
         for heroRealm in heroesRealm {
-            heroes.append(HeroListModel(id: heroRealm._id, name: heroRealm.name, thumbnail: URL(string: heroRealm.thumbnail)!))
+            heroes.append(HeroListModel(
+                id: heroRealm._id,
+                name: heroRealm.name,
+                thumbnail: URL(string: heroRealm.thumbnail)!))
         }
         return heroes
+    }
+    
+    func putHero(hero: HeroModel) {
+        try! realm.write {
+            realm.add(Hero(
+                id: hero.id,
+                name: hero.name,
+                thumbnail: hero.thumbnail,
+                descript: hero.description
+            ), update: .modified)
+        }
+    }
+    
+    func getHero(id: Int) -> HeroModel? {
+        guard let heroRealm = realm.object(ofType: Hero.self, forPrimaryKey: id) else {
+            return nil
+        }
+        return HeroModel(
+            id: heroRealm._id,
+            name: heroRealm.name,
+            description: heroRealm.descript,
+            thumbnail: URL(string: heroRealm.thumbnail)!
+        )
     }
 }
