@@ -21,7 +21,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(frame: windowScene.coordinateSpace.bounds)
         window?.windowScene = windowScene
-        window?.rootViewController = ViewController()
+        let nav1 = UINavigationController()
+        let mainView = ViewController()
+        nav1.viewControllers = [mainView]
+        nav1.navigationBar.barStyle = .black
+        nav1.navigationBar.tintColor = .white
+        window?.rootViewController = nav1
         window?.makeKeyAndVisible()
     }
 
