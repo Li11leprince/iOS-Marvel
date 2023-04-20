@@ -21,10 +21,10 @@ final class DetailPageViewModel {
             switch response {
             case .success(let hero):
                 self?.isLoaded = true
-                self?.db.putHero(hero: hero)
+                self?.db.saveHero(hero: hero)
                 complition(.success(hero), false)
             case .failure(let error):
-                guard let dbData = self?.db.getHero(id: id) else {
+                guard let dbData = self?.db.getHero(by: id) else {
                     complition(.failure(error), false)
                     return
                 }

@@ -8,7 +8,7 @@
 import Foundation
 import RealmSwift
 
-class HeroList: Object {
+class RealmHeroListModel: Object {
     @Persisted(primaryKey: true) var _id: Int
     @Persisted var name: String = ""
     @Persisted var thumbnail: String = ""
@@ -20,7 +20,7 @@ class HeroList: Object {
     }
 }
 
-class Hero: Object {
+class RealmHeroModel: Object {
     @Persisted(primaryKey: true) var _id: Int
     @Persisted var name: String = ""
     @Persisted var thumbnail: String = ""

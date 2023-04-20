@@ -8,15 +8,21 @@
 import Foundation
 import Alamofire
 
-final class APIManager {
+protocol HeroRepository {
+    func getAllCharacters(offset: Int, completion: @escaping (_ response: Swift.Result<[HeroListModel], Error>) -> Void)
+    func getCharacter(id: Int, completion: @escaping (_ response: Swift.Result<HeroModel, Error>) -> Void)
+}
+
+final class HeroRepositoryImp: HeroRepository {
     private let baseURL = "https://gateway.marvel.com:443/v1/public"
     
     private lazy var parameters: [String: String] = [
-        //"offset": String(describing: offset),
         "ts": "1",
         "apikey": "65c68fe6bf25193cc782ea92ced58111",
         "hash": "7d7fa28a489ed5667f31cab4431425f3"
     ]
+    
+    private let db = DBManager()
     
     func getAllCharacters(offset: Int, completion: @escaping (_ response: Swift.Result<[HeroListModel], Error>) -> Void) {
         AF.request(self.baseURL + "/characters?offset=\(String(describing: offset))", method: .get, parameters: self.parameters, encoding: URLEncoding.default, headers: nil, interceptor: nil).responseDecodable(of: APIHeroListModel.self) { response in
@@ -25,7 +31,12 @@ final class APIManager {
                 let heroList = value.data.results.enumerated().map{ index, hero -> HeroListModel in HeroListModel(id: hero.id, name: hero.name, thumbnail: URL(string: hero.thumbnail.path.inserted("s", at: hero.thumbnail.path.firstIndex(of: ":")!) + "." + hero.thumbnail.extension)!) }
                 completion(.success(heroList))
             case let .failure(error):
-                completion(.failure(error))
+                let dbData = self.db.getAllHeroes()
+                if dbData.isEmpty {
+                    completion(.failure(error))
+                } else {
+                    completion(.success(dbData))
+                }
             }
         }
     }
@@ -37,7 +48,11 @@ final class APIManager {
                 let hero = value.data.results.enumerated().map{ index, hero -> HeroModel in HeroModel(id: hero.id, name: hero.name, description: hero.description, thumbnail: URL(string: hero.thumbnail.path.inserted("s", at: hero.thumbnail.path.firstIndex(of: ":")!) + "." + hero.thumbnail.extension)!) }
                 completion(.success(hero[0]))
             case let .failure(error):
-                completion(.failure(error))
+                guard let dbData = self.db.getHero(by: id) else {
+                    completion(.failure(error))
+                    return
+                }
+                completion(.success(dbData))
             }
         }
     }

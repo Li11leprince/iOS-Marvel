@@ -170,7 +170,7 @@ final class ViewController: UIViewController {
     private func getImageAverageColor() -> CGColor {
         var color = UIColor(hex: 0x760208).cgColor
         guard let heroes = heroes else {return color}
-        KingfisherManager.shared.retrieveImage(with: heroes[layout.currentPage].thumbnail, options: nil, progressBlock: nil, completionHandler: { result in
+        KingfisherManager.shared.retrieveImage(with: heroes[layout.currentPage].thumbnail, options: nil, completionHandler: { result in
             switch result {
             case .success(let value):
                 color = value.image.averageColor?.cgColor ?? UIColor(hex: 0x760208).cgColor

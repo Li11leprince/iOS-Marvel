@@ -20,10 +20,10 @@ final class HeroesViewModel {
             switch response {
             case .success(let heroes):
                 self?.isLoaded = true
-                self?.db.putHeroes(heroes: heroes)
+                self?.db.saveAllHeroes(heroes: heroes)
                 complition(.success(heroes), false)
             case .failure(let error):
-                let dbData = self?.db.getHeroes() ?? []
+                let dbData = self?.db.getAllHeroes() ?? []
                 if dbData.isEmpty {
                     complition(.failure(error), false)
                 } else {
