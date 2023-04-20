@@ -270,8 +270,8 @@
             filePath = "Labs/ViewModels/HeroesViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "18"
-            endingLineNumber = "18"
+            startingLineNumber = "17"
+            endingLineNumber = "17"
             landmarkName = "getHeroes(offset:complition:)"
             landmarkType = "7">
          </BreakpointContent>
