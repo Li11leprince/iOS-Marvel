@@ -2,14 +2,14 @@
 //  HeroModel.swift
 //  Labs
 //
-//  Created by Effective on 13.04.2023.
+//  Created by Effective on 19.02.2023.
 //
 
 import Foundation
+import UIKit
 
-struct HeroModel {
+struct HeroListModel {
     let id: Int
     let name: String
-    let description: String
     let thumbnail: URL
 }

@@ -8,10 +8,11 @@
 import UIKit
 import CollectionViewPagingLayout
 import SnapKit
+import Kingfisher
 
 final class HeroesCollectionViewCell: UICollectionViewCell {
     
-    var viewModel: HeroCellViewModel? {
+    var viewModel: HeroListModel? {
         didSet {
             updateViews()
         }
@@ -28,10 +29,15 @@ final class HeroesCollectionViewCell: UICollectionViewCell {
         uiView.layer.masksToBounds = true
         return uiView
     }()
-    private let heroImageView: UIImageView = {
+    let heroImageView: UIImageView = {
         let uiImageView = UIImageView()
         uiImageView.contentMode = .scaleAspectFill
         return uiImageView
+    }()
+    private lazy var gradientView: GradientView = {
+        let gv = GradientView(frame: contentView.frame)
+        gv.layer.isHidden = true
+        return gv
     }()
     private let heroNameLabel: UILabel = {
         let uiLabel = UILabel()
@@ -56,14 +62,19 @@ final class HeroesCollectionViewCell: UICollectionViewCell {
     private func setUpHierarchy() {
         contentView.addSubview(containerView)
         containerView.addSubview(heroImageView)
+        containerView.addSubview(gradientView)
         containerView.addSubview(heroNameLabel)
     }
     
     private func setUpConstraints() {
         containerView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
+            make.left.right.equalToSuperview().inset(32)
+            make.bottom.top.equalToSuperview()
         }
         heroImageView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+        gradientView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
         heroNameLabel.snp.makeConstraints { make in
@@ -77,7 +88,16 @@ final class HeroesCollectionViewCell: UICollectionViewCell {
              return
          }
         heroNameLabel.text = viewModel.name
-        heroImageView.image = viewModel.image
+        heroImageView.kf.indicatorType = .activity
+        let imageURL = viewModel.thumbnail
+        heroImageView.kf.setImage(with: imageURL,
+            placeholder: UIImage(named: "placeholderImage"),
+            options: [
+                .scaleFactor(UIScreen.main.scale),
+                .transition(.fade(1)),
+                .cacheOriginalImage
+        ])
+        gradientView.layer.isHidden = false
     }
     
 
@@ -96,10 +116,10 @@ extension HeroesCollectionViewCell: ScaleTransformView {
             translationCurve: .linear
         )
     }
-    
+
     func transform(progress: CGFloat) {
         applyScaleTransform(progress: progress)
     }
-    
+
 }
 

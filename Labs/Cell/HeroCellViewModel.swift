@@ -7,10 +7,11 @@
 
 import Foundation
 import UIKit
-
-struct HeroCellViewModel {
-    let name: String
-    var image: UIImage? {
-        UIImage(named: name)
+ 
+    struct HeroCellViewModel {
+        let name: String
+        let imageURL: URL
     }
-}
+
+
+
