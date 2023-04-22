@@ -9,8 +9,8 @@ import Foundation
 import Alamofire
 
 protocol HeroRepository {
-    func getAllCharacters(offset: Int, completion: @escaping (_ response: Swift.Result<[HeroListModel], Error>) -> Void)
-    func getCharacter(id: Int, completion: @escaping (_ response: Swift.Result<HeroModel, Error>) -> Void)
+    func getAllCharacters(offset: Int, completion: @escaping (_ response: Swift.Result<[HeroListModel], Error>, _ isOffline: Bool) -> Void)
+    func getCharacter(id: Int, completion: @escaping (_ response: Swift.Result<HeroModel, Error>, _ isOffline: Bool) -> Void)
 }
 
 final class HeroRepositoryImp: HeroRepository {
@@ -24,35 +24,47 @@ final class HeroRepositoryImp: HeroRepository {
     
     private let db = DBManager()
     
-    func getAllCharacters(offset: Int, completion: @escaping (_ response: Swift.Result<[HeroListModel], Error>) -> Void) {
+    private func mapApiToHeroListModel(_ apiHeroes: APIHeroListModel) -> [HeroListModel] {
+        let heroList = apiHeroes.data.results.enumerated().map{ index, hero -> HeroListModel in HeroListModel(id: hero.id, name: hero.name, thumbnail: URL(string: hero.thumbnail.path.inserted("s", at: hero.thumbnail.path.firstIndex(of: ":")!) + "." + hero.thumbnail.extension) ?? nil) }
+        return heroList
+    }
+    
+    func getAllCharacters(offset: Int, completion: @escaping (_ response: Swift.Result<[HeroListModel], Error>, _ isOffline: Bool) -> Void) {
         AF.request(self.baseURL + "/characters?offset=\(String(describing: offset))", method: .get, parameters: self.parameters, encoding: URLEncoding.default, headers: nil, interceptor: nil).responseDecodable(of: APIHeroListModel.self) { response in
             switch response.result {
             case .success(let value):
-                let heroList = value.data.results.enumerated().map{ index, hero -> HeroListModel in HeroListModel(id: hero.id, name: hero.name, thumbnail: URL(string: hero.thumbnail.path.inserted("s", at: hero.thumbnail.path.firstIndex(of: ":")!) + "." + hero.thumbnail.extension)!) }
-                completion(.success(heroList))
+                let heroList = self.mapApiToHeroListModel(value)
+                self.db.saveAllHeroes(heroes: heroList)
+                completion(.success(heroList), false)
             case let .failure(error):
                 let dbData = self.db.getAllHeroes()
                 if dbData.isEmpty {
-                    completion(.failure(error))
+                    completion(.failure(error), false)
                 } else {
-                    completion(.success(dbData))
+                    completion(.success(dbData), true)
                 }
             }
         }
     }
     
-    func getCharacter(id: Int, completion: @escaping (_ response: Swift.Result<HeroModel, Error>) -> Void) {
+    private func mapApiToHeroModel(_ apiHeroes: APIHeroListModel) -> HeroModel {
+        let hero = apiHeroes.data.results.enumerated().map{ index, hero -> HeroModel in HeroModel(id: hero.id, name: hero.name, description: hero.description, thumbnail: URL(string: hero.thumbnail.path.inserted("s", at: hero.thumbnail.path.firstIndex(of: ":")!) + "." + hero.thumbnail.extension) ?? nil) }
+        return hero[0]
+    }
+    
+    func getCharacter(id: Int, completion: @escaping (_ response: Swift.Result<HeroModel, Error>, _ isOffline: Bool) -> Void) {
         AF.request(self.baseURL + "/characters/\(id)", method: .get, parameters: self.parameters, encoding: URLEncoding.default, headers: nil, interceptor: nil).responseDecodable(of: APIHeroListModel.self) { response in
             switch response.result {
             case .success(let value):
-                let hero = value.data.results.enumerated().map{ index, hero -> HeroModel in HeroModel(id: hero.id, name: hero.name, description: hero.description, thumbnail: URL(string: hero.thumbnail.path.inserted("s", at: hero.thumbnail.path.firstIndex(of: ":")!) + "." + hero.thumbnail.extension)!) }
-                completion(.success(hero[0]))
+                let hero = self.mapApiToHeroModel(value)
+                self.db.saveHero(hero: hero)
+                completion(.success(hero), false)
             case let .failure(error):
                 guard let dbData = self.db.getHero(by: id) else {
-                    completion(.failure(error))
+                    completion(.failure(error), false)
                     return
                 }
-                completion(.success(dbData))
+                completion(.success(dbData), true)
             }
         }
     }

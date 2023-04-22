@@ -8,23 +8,40 @@
 import Foundation
 import UIKit
 
+protocol InsectDetailViewModel: AnyObject {
+    
+    var onLoadData: ((HeroDetailViewState) -> Void)? { get set }
+    func start()
+    
+}
+
 final class DetailPageViewModel {
     
+    var onLoadData: ((HeroDetailViewState) -> Void)?
+    
     private let rep = HeroRepositoryImp()
-    private let db = DBManager()
+    private let id: Int
     
-    var isLoaded = false
+    init(id: Int) {
+        self.id = id
+    }
     
-    func getHero(id: Int, complition: @escaping (_ response: Swift.Result<HeroModel, Error>, _ isOffline: Bool) -> ()) {
-        isLoaded = false
-        rep.getCharacter(id: id) { [weak self] (response) in
+    func start() {
+        getHero()
+    }
+    
+    func getHero() {
+        onLoadData?(.loading)
+        rep.getCharacter(id: id) { [weak self] (response, isOffline) in
             switch response {
             case .success(let hero):
-                self?.isLoaded = true
-                self?.db.saveHero(hero: hero)
-                complition(.success(hero), false)
+                if isOffline {
+                    self?.onLoadData?(.offline(hero))
+                } else {
+                    self?.onLoadData?(.loaded(hero))
+                }
             case .failure(let error):
-                complition(.failure(error), false)
+                self?.onLoadData?(.error(error))
             }
         }
     }

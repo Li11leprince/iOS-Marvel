@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SnapKit
 import UIKit
 
 extension String {
@@ -48,22 +49,30 @@ extension UIViewController {
     func showToast(message : String, font: UIFont) {
 
         let toastLabel = UILabel()
-        toastLabel.frame.size.width = 200
-        toastLabel.frame.origin = CGPoint(x: self.view.frame.size.width/2 - 100, y: 30)
+//        toastLabel.frame.size.width = 200
+//        toastLabel.frame.origin = CGPoint(x: self.view.frame.size.width/2 - 100, y: 30)
         toastLabel.textColor = UIColor.white
         toastLabel.font = font
         toastLabel.textAlignment = .center;
         toastLabel.text = message
-        toastLabel.alpha = 1.0
         toastLabel.layer.cornerRadius = 10;
         toastLabel.clipsToBounds  =  true
-        UIView.animate(withDuration: 0.8, delay: 0.0, options: .curveLinear, animations: {
-            toastLabel.backgroundColor = UIColor.red.withAlphaComponent(0.6)
-            toastLabel.frame.size.height = 35
-            self.view.addSubview(toastLabel)
+        toastLabel.translatesAutoresizingMaskIntoConstraints = false
+        self.view.addSubview(toastLabel)
+        toastLabel.backgroundColor = UIColor.red.withAlphaComponent(0.6)
+        UIView.animate(withDuration: 0.6, delay: 0.0, options: .curveLinear, animations: {
+            NSLayoutConstraint.activate([
+                toastLabel.rightAnchor.constraint(equalTo: self.view.rightAnchor, constant: -80),
+                toastLabel.leftAnchor.constraint(equalTo: self.view.leftAnchor, constant: 80)
+            ])
+            toastLabel.layoutIfNeeded()
         }, completion: nil)
+        NSLayoutConstraint.activate([
+            toastLabel.heightAnchor.constraint(equalToConstant: 32),
+            toastLabel.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 32),
+        ])
         UIView.animate(withDuration: 4.0, delay: 1.5, options: .curveEaseOut, animations: {
-             toastLabel.alpha = 0.0
+            toastLabel.alpha = 0.0
         }, completion: {(isCompleted) in
             toastLabel.removeFromSuperview()
         })
