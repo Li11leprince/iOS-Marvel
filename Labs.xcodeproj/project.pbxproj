@@ -14,7 +14,6 @@
 		1A26298A299D2BF0004FB552 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1A262988299D2BF0004FB552 /* LaunchScreen.storyboard */; };
 		1A262998299F6ECD004FB552 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1A262997299F6ECD004FB552 /* SnapKit */; };
 		1A26299B29A01888004FB552 /* CollectionViewPagingLayout in Frameworks */ = {isa = PBXBuildFile; productRef = 1A26299A29A01888004FB552 /* CollectionViewPagingLayout */; };
-		1A26299E29A01939004FB552 /* HeroCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A26299D29A01939004FB552 /* HeroCellViewModel.swift */; };
 		1A2629A029A01AC4004FB552 /* HeroesCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A26299F29A01AC4004FB552 /* HeroesCollectionViewCell.swift */; };
 		1A2629A229A23D13004FB552 /* HeroListModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2629A129A23D13004FB552 /* HeroListModel.swift */; };
 		1A2629A529A23DDB004FB552 /* HeroesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2629A429A23DDB004FB552 /* HeroesViewModel.swift */; };
@@ -43,7 +42,6 @@
 		1A262986299D2BF0004FB552 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1A262989299D2BF0004FB552 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		1A26298B299D2BF0004FB552 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		1A26299D29A01939004FB552 /* HeroCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeroCellViewModel.swift; sourceTree = "<group>"; };
 		1A26299F29A01AC4004FB552 /* HeroesCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeroesCollectionViewCell.swift; sourceTree = "<group>"; };
 		1A2629A129A23D13004FB552 /* HeroListModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeroListModel.swift; sourceTree = "<group>"; };
 		1A2629A429A23DDB004FB552 /* HeroesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeroesViewModel.swift; sourceTree = "<group>"; };
@@ -102,7 +100,6 @@
 				1AF07EF129C253F500E972D7 /* ViewModels */,
 				1AF07EE029AF715A00E972D7 /* Views */,
 				1A2629A329A23D23004FB552 /* Models */,
-				1A26299C29A018DE004FB552 /* Cell */,
 				1A26297D299D2BEE004FB552 /* AppDelegate.swift */,
 				1A26297F299D2BEE004FB552 /* SceneDelegate.swift */,
 				1A262986299D2BF0004FB552 /* Assets.xcassets */,
@@ -110,14 +107,6 @@
 				1A26298B299D2BF0004FB552 /* Info.plist */,
 			);
 			path = Labs;
-			sourceTree = "<group>";
-		};
-		1A26299C29A018DE004FB552 /* Cell */ = {
-			isa = PBXGroup;
-			children = (
-				1A26299D29A01939004FB552 /* HeroCellViewModel.swift */,
-			);
-			path = Cell;
 			sourceTree = "<group>";
 		};
 		1A2629A329A23D23004FB552 /* Models */ = {
@@ -265,7 +254,6 @@
 				1AA7608C29E819D7001B4239 /* HeroModel.swift in Sources */,
 				1AF07EE629B1209F00E972D7 /* DetailPageViewModel.swift in Sources */,
 				1AA7607729D4701C001B4239 /* GradientView.swift in Sources */,
-				1A26299E29A01939004FB552 /* HeroCellViewModel.swift in Sources */,
 				1A262982299D2BEE004FB552 /* HeroListViewController.swift in Sources */,
 				1AA7607929D5B748001B4239 /* LoadingView.swift in Sources */,
 				1A2629A029A01AC4004FB552 /* HeroesCollectionViewCell.swift in Sources */,
