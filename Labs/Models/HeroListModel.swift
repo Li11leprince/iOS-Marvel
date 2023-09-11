@@ -11,5 +11,5 @@ import UIKit
 struct HeroListModel {
     let id: Int
     let name: String
-    let thumbnail: URL
+    let thumbnail: URL?
 }

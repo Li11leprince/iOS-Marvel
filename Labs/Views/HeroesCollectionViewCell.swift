@@ -12,7 +12,7 @@ import Kingfisher
 
 final class HeroesCollectionViewCell: UICollectionViewCell {
     
-    var viewModel: HeroListModel? {
+    var model: HeroListModel? {
         didSet {
             updateViews()
         }
@@ -84,19 +84,19 @@ final class HeroesCollectionViewCell: UICollectionViewCell {
     }
     
     private func updateViews() {
-        guard let viewModel = viewModel else {
+        guard let model = model else {
              return
          }
-        heroNameLabel.text = viewModel.name
+        heroNameLabel.text = model.name
         heroImageView.kf.indicatorType = .activity
-        let imageURL = viewModel.thumbnail
+        let imageURL = model.thumbnail
         heroImageView.kf.setImage(with: imageURL,
             placeholder: UIImage(named: "placeholderImage"),
             options: [
                 .scaleFactor(UIScreen.main.scale),
                 .transition(.fade(1)),
                 .cacheOriginalImage
-        ])
+            ])
         gradientView.layer.isHidden = false
     }
     

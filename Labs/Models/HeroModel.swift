@@ -11,5 +11,5 @@ struct HeroModel {
     let id: Int
     let name: String
     let description: String
-    let thumbnail: URL
+    let thumbnail: URL?
 }

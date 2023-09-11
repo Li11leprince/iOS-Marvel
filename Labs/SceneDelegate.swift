@@ -22,7 +22,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window = UIWindow(frame: windowScene.coordinateSpace.bounds)
         window?.windowScene = windowScene
         let nav1 = UINavigationController()
-        let mainView = ViewController()
+        let mainView = HeroListViewController()
         nav1.viewControllers = [mainView]
         nav1.navigationBar.barStyle = .black
         nav1.navigationBar.tintColor = .white

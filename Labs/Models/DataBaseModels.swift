@@ -12,11 +12,11 @@ class RealmHeroListModel: Object {
     @Persisted(primaryKey: true) var _id: Int
     @Persisted var name: String = ""
     @Persisted var thumbnail: String = ""
-    convenience init(id: Int, name: String, thumbnail: URL) {
+    convenience init(id: Int, name: String, thumbnail: String) {
         self.init()
         self._id = id
         self.name = name
-        self.thumbnail = String(describing: thumbnail)
+        self.thumbnail = thumbnail
     }
 }
 
@@ -25,11 +25,11 @@ class RealmHeroModel: Object {
     @Persisted var name: String = ""
     @Persisted var thumbnail: String = ""
     @Persisted var descript: String = ""
-    convenience init(id: Int, name: String, thumbnail: URL, descript: String) {
+    convenience init(id: Int, name: String, thumbnail: String, descript: String) {
         self.init()
         self._id = id
         self.name = name
-        self.thumbnail = String(describing: thumbnail)
+        self.thumbnail = thumbnail
         self.descript = descript
     }
 }

@@ -20,7 +20,7 @@ class HorizontalPaginationManager: NSObject {
     private var scrollView: UIScrollView!
     private var leftMostLoader: UIView?
     private var rightMostLoader: UIView?
-    var refreshViewColor: UIColor = .white
+    var refreshViewColor: UIColor = .clear
     var loaderColor: UIColor = .white
     
     weak var delegate: HorizontalPaginationManagerDelegate?
@@ -28,11 +28,11 @@ class HorizontalPaginationManager: NSObject {
     init(scrollView: UIScrollView) {
         super.init()
         self.scrollView = scrollView
-        self.addScrollViewOffsetObserver()
+        //self.addScrollViewOffsetObserver()
     }
     
     deinit {
-        self.removeScrollViewOffsetObserver()
+        //self.removeScrollViewOffsetObserver()
     }
     
 }
@@ -87,6 +87,7 @@ extension HorizontalPaginationManager {
     func removeRightLoader() {
         self.rightMostLoader?.removeFromSuperview()
         self.rightMostLoader = nil
+        self.scrollView.contentInset.right = 0
     }
     
 }
@@ -94,37 +95,7 @@ extension HorizontalPaginationManager {
 
 extension HorizontalPaginationManager {
     
-    private func addScrollViewOffsetObserver() {
-        if self.isObservingKeyPath { return }
-        self.scrollView.addObserver(
-            self,
-            forKeyPath: "contentOffset",
-            options: [.new],
-            context: nil
-        )
-        self.isObservingKeyPath = true
-    }
-    
-    private func removeScrollViewOffsetObserver() {
-        if self.isObservingKeyPath {
-            self.scrollView.removeObserver(self,
-                                           forKeyPath: "contentOffset")
-        }
-        self.isObservingKeyPath = false
-    }
-    
-    override public func observeValue(forKeyPath keyPath: String?,
-                                      of object: Any?,
-                                      change: [NSKeyValueChangeKey : Any]?,
-                                      context: UnsafeMutableRawPointer?) {
-        guard let object = object as? UIScrollView,
-            let keyPath = keyPath,
-            let newValue = change?[.newKey] as? CGPoint,
-            object == self.scrollView, keyPath == "contentOffset" else { return }
-        self.setContentOffSet(newValue)
-    }
-    
-    private func setContentOffSet(_ offset: CGPoint) {
+    func setContentOffSet(_ offset: CGPoint) {
         let offsetX = offset.x
         if offsetX < -100 && !self.isLoading {
             self.isLoading = true

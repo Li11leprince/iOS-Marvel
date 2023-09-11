@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//  HeroListViewController.swift
 //  Labs
 //
 //  Created by Effective on 15.02.2023.
@@ -10,13 +10,16 @@ import SnapKit
 import CollectionViewPagingLayout
 import Kingfisher
 
-final class ViewController: UIViewController {
+enum HeroListViewState {
+    case loading
+    case loaded([HeroListModel])
+    case offline([HeroListModel])
+    case error(Error)
+}
+
+final class HeroListViewController: UIViewController {
 
     var heroes: [HeroListModel]?
-    
-    private var page = 0
-    
-    private var offset = 0
     
     private enum Constraints {
         static let titleImageViewTopConstraintValue = CGFloat(80)
@@ -31,17 +34,11 @@ final class ViewController: UIViewController {
         static let collectionViewLeftRightValue = CGFloat(32)
     }
     
-    private lazy var paginationManager: HorizontalPaginationManager = {
-        let manager = HorizontalPaginationManager(scrollView: self.collectionView)
-        manager.delegate = self
-        return manager
-    }()
-    
     private var isDragging: Bool {
         return self.collectionView.isDragging
     }
     
-    private let heroesViewModel = HeroesViewModel()
+    private lazy var viewModel = HeroesViewModel(scrollView: collectionView)
     
     private let titleImageView: UIImageView = {
         let imageView = UIImageView()
@@ -83,40 +80,42 @@ final class ViewController: UIViewController {
         )
         return alert
     }()
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(true)
-        if !heroesViewModel.isLoaded {
-            loadingView.start()
-            heroesViewModel.getHeroes(offset: 0) { (response, isOffline) in
-                switch response {
-                case .success(let heroes):
-                    if isOffline {
-                        self.showToast(message: "Offline mode", font: .systemFont(ofSize: 14.0))
-                    }
-                    self.loadingView.stop()
-                    self.heroes = heroes
-                    self.collectionView.reloadData()
-                    self.layout.setCurrentPage(0)
-                    self.collectionView.performBatchUpdates({
-                        self.collectionView.collectionViewLayout.invalidateLayout()
-                    })
-                    self.triangle.changeTryangleColor(self.getImageAverageColor())
-                case .failure(let error):
-                    self.loadingView.stop()
-                    self.alert.message = error.localizedDescription
-                    self.present(self.alert, animated: true, completion: nil)
-                }
-            }
-        }
-    }
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
         initialize()
-        self.setupPagination()
+        
+        viewModel.onChangeViewState = { [weak self] state in
+            guard let self = self else { return }
+            switch state {
+            case .loading:
+                self.loadingView.start()
+            case .loaded(let heroList):
+                self.setUpView(heroList)
+            case .offline(let heroList):
+                self.showToast(message: "Offline mode", font: .systemFont(ofSize: 14.0))
+                self.setUpView(heroList)
+            case .error(let error):
+                self.loadingView.stop()
+                self.alert.message = error.localizedDescription
+                self.present(self.alert, animated: true, completion: nil)
+            }
+        }
+        
+        viewModel.start()
     }
 
+    private func setUpView(_ heroes: [HeroListModel]) {
+        loadingView.stop()
+        self.heroes = heroes
+        collectionView.reloadData()
+        collectionView.performBatchUpdates({
+            collectionView.collectionViewLayout.invalidateLayout()
+        })
+        changeTriangleColor()
+    }
+    
     private func initialize() {
         view.backgroundColor = UIColor(red: 42/255, green: 39/255, blue: 43/255, alpha: 1)
         triangle = TriangleView(frame: view.frame)
@@ -167,23 +166,21 @@ final class ViewController: UIViewController {
         collectionView.delegate = self
     }
     
-    private func getImageAverageColor() -> CGColor {
-        var color = UIColor(hex: 0x760208).cgColor
-        guard let heroes = heroes else {return color}
-        KingfisherManager.shared.retrieveImage(with: heroes[layout.currentPage].thumbnail, options: nil, completionHandler: { result in
+    private func changeTriangleColor() {
+        guard let image = heroes?[layout.currentPage].thumbnail else { return }
+        KingfisherManager.shared.retrieveImage(with: image, options: nil, completionHandler: { result in
             switch result {
             case .success(let value):
-                color = value.image.averageColor?.cgColor ?? UIColor(hex: 0x760208).cgColor
+                self.triangle.changeTryangleColor(value.image.averageColor?.cgColor ?? UIColor(hex: 0x760208).cgColor)
             case .failure(_):
-                color = UIColor(hex: 0x760208).cgColor
+                self.triangle.changeTryangleColor(UIColor(hex: 0x760208).cgColor)
             }
         })
-        return color
     }
     
 }
 
-extension ViewController: UICollectionViewDataSource {
+extension HeroListViewController: UICollectionViewDataSource {
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         heroes?.count ?? 0
@@ -192,75 +189,25 @@ extension ViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let itemViewModel = heroes?[indexPath.row]
         let cell: HeroesCollectionViewCell = collectionView.dequeueReusableCell(withReuseIdentifier: String(describing: HeroesCollectionViewCell.self)  , for: indexPath) as! HeroesCollectionViewCell
-        cell.viewModel = itemViewModel
+        cell.model = itemViewModel
         return cell
     }
 
 }
 
-extension ViewController: UICollectionViewDelegate, UIScrollViewDelegate {
+extension HeroListViewController: UICollectionViewDelegate, UIScrollViewDelegate {
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        self.triangle.changeTryangleColor(getImageAverageColor())
+        changeTriangleColor()
     }
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let detailPageController = DetailPageController()
-        detailPageController.id = heroes?[indexPath.row].id
+        let viewModel = DetailPageViewModel(id: heroes?[indexPath.row].id ?? 0)
+        let detailPageController = DetailPageController(viewModel: viewModel)
         navigationController?.pushViewController(detailPageController, animated: true)
     }
     
-}
-
-extension ViewController: HorizontalPaginationManagerDelegate {
-    
-    private func setupPagination() {
-        self.paginationManager.refreshViewColor = .clear
-        self.paginationManager.loaderColor = .white
-    }
-    
-    func refreshAll(completion: @escaping (Bool) -> Void) {
-            self.heroesViewModel.getHeroes(offset: 0) { (response, isOffline) in
-                switch response {
-                case .success(let heroes):
-                    if isOffline {
-                        self.showToast(message: "Offline mode", font: .systemFont(ofSize: 14.0))
-                    }
-                    self.heroes = heroes
-                    self.collectionView.reloadData()
-                    self.collectionView.performBatchUpdates({
-                        self.collectionView.collectionViewLayout.invalidateLayout()
-                    })
-                    completion(true)
-                case .failure(let error):
-                    completion(false)
-                    self.alert.message = error.localizedDescription
-                    self.present(self.alert, animated: true, completion: nil)
-                }
-            }
-    }
-    
-    func loadMore(completion: @escaping (Bool) -> Void) {
-        offset += 20
-        self.heroesViewModel.getHeroes(offset: offset) { (response, isOffline) in
-            switch response {
-            case .success(let heroes):
-                self.heroes! += heroes
-                self.collectionView.reloadData()
-                self.collectionView.performBatchUpdates({
-                    self.collectionView.collectionViewLayout.invalidateLayout()
-                })
-                completion(true)
-            case .failure(let error):
-                completion(false)
-                self.alert.message = error.localizedDescription
-                self.present(self.alert, animated: true, completion: nil)
-            }
-        }
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        viewModel.refreshOrLoadMore(offset: scrollView.contentOffset)
     }
     
 }
-
-//selfsizing cell
-//difable datasource
-
-
